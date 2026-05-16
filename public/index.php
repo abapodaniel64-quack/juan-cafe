@@ -81,4 +81,4 @@ if ($action && isset($routes[$action])) {
 }
 
 // ── Fallback: redirect to homepage ──────────────────────────────────────────────
-redirect('/app/views/home/index.php');
+require_once 'C:/xampp/htdocs/juan-cafe/app/views/home/index.php';

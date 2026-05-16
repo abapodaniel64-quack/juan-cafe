@@ -25,7 +25,7 @@ Options -MultiViews
     # ── Allow real files and directories to pass through unchanged ─────────────
     RewriteCond %{REQUEST_FILENAME} -f [OR]
     RewriteCond %{REQUEST_FILENAME} -d
-    RewriteRule ^ - [L]
+    RewriteRule ^ index.php [QSA,L]
 
     # ── Route all other requests through index.php ─────────────────────────────
     RewriteRule ^ index.php [QSA,L]
