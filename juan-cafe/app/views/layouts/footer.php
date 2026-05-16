@@ -67,7 +67,7 @@
 
     <!-- Bottom Bar -->
     <div class="footer-bottom">
-      <p>&copy; 2024 Juan Café · Top Juan Franchising Inc. All rights reserved.</p>
+      <p>&copy; <?= date('Y') ?> Juan Café · Top Juan Franchising Inc. All rights reserved.</p>
       <div class="footer-bottom-links">
         <a href="/app/views/home/privacy-policy.php">Privacy Policy</a>
         <a href="/app/views/home/contact.php">Contact</a>
@@ -89,3 +89,6 @@
 <script src="/public/assets/js/app.js"></script>
 <script src="/public/assets/js/cart.js"></script>
 <script src="/public/assets/js/notifications.js"></script>
+
+</body>
+</html>

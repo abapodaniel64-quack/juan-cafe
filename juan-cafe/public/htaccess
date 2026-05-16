@@ -2,14 +2,8 @@
 # JUAN CAFÉ – Apache Configuration
 # File: public/.htaccess
 #
-# Place this file in the `public/` directory (the Apache document root).
-# Requires mod_rewrite and mod_headers to be enabled.
-#
-# What this does:
-#   1. Forces HTTPS in production (comment out for local dev)
-#   2. Blocks direct access to sensitive paths
-#   3. Sets security headers
-#   4. Enables clean URL routing through public/index.php
+# Place this file inside the `public/` directory (document root).
+# Requires mod_rewrite and mod_headers to be enabled in Apache.
 # ============================================================
 
 Options -Indexes
@@ -20,82 +14,55 @@ Options -MultiViews
     RewriteEngine On
     RewriteBase /
 
-    # ── Force HTTPS (uncomment in production) ─────────────────────────────────
+    # ── Force HTTPS (uncomment in production only) ─────────────────────────────
     # RewriteCond %{HTTPS} off
     # RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
 
-    # ── Block access to hidden files (.git, .env, etc.) ───────────────────────
+    # ── Block hidden files (.git, .env, .DS_Store, swap files) ────────────────
     RewriteCond %{REQUEST_URI} (^\.|/\.)
     RewriteRule ^ - [F,L]
 
-    # ── Block direct access to PHP files outside public/ ──────────────────────
-    # (This rule only applies inside public/ — the app/ folder should NOT be
-    #  inside the document root. If it is, add a separate .htaccess in app/.)
-    RewriteCond %{REQUEST_FILENAME} !-f
-    RewriteCond %{REQUEST_FILENAME} !-d
+    # ── Allow real files and directories to pass through unchanged ─────────────
+    RewriteCond %{REQUEST_FILENAME} -f [OR]
+    RewriteCond %{REQUEST_FILENAME} -d
+    RewriteRule ^ - [L]
 
-    # ── Route all other requests through index.php ────────────────────────────
+    # ── Route all other requests through index.php ─────────────────────────────
     RewriteRule ^ index.php [QSA,L]
-</IfModule>
-
-# ── Block direct access to app/ if accidentally inside document root ──────────
-<IfModule mod_authz_core.c>
-    <FilesMatch "\.(php|sql|md|json|lock|gitignore)$">
-        # Allow PHP files that are meant to be public
-        # Deny everything in app/ and database/ via directory rules below
-    </FilesMatch>
 </IfModule>
 
 # ── Security Headers ──────────────────────────────────────────────────────────
 <IfModule mod_headers.c>
-    # Prevent clickjacking
     Header always set X-Frame-Options "SAMEORIGIN"
-
-    # Prevent MIME-type sniffing
     Header always set X-Content-Type-Options "nosniff"
-
-    # Enable XSS filter in older browsers
     Header always set X-XSS-Protection "1; mode=block"
-
-    # Referrer policy
     Header always set Referrer-Policy "strict-origin-when-cross-origin"
-
-    # Basic Content Security Policy (loosen as needed for external CDNs)
-    # Header always set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline';"
-
-    # Remove server signature
     Header unset Server
     Header always unset X-Powered-By
 </IfModule>
 
-# ── PHP Settings (override php.ini for this directory) ───────────────────────
+# ── PHP Settings ──────────────────────────────────────────────────────────────
 <IfModule mod_php.c>
-    # Hide PHP version
-    php_flag expose_php Off
-
-    # Session security
+    php_flag  expose_php            Off
     php_value session.cookie_httponly 1
     php_value session.use_strict_mode 1
-    # php_value session.cookie_secure 1    # uncomment when using HTTPS
     php_value session.cookie_samesite "Lax"
-
-    # Upload limits
-    php_value upload_max_filesize 2M
-    php_value post_max_size 8M
+    php_value upload_max_filesize  2M
+    php_value post_max_size        8M
 </IfModule>
 
 # ── Cache Static Assets ───────────────────────────────────────────────────────
 <IfModule mod_expires.c>
     ExpiresActive On
-    ExpiresByType image/jpeg  "access plus 1 month"
-    ExpiresByType image/png   "access plus 1 month"
-    ExpiresByType image/webp  "access plus 1 month"
-    ExpiresByType text/css    "access plus 1 week"
-    ExpiresByType application/javascript "access plus 1 week"
+    ExpiresByType image/jpeg              "access plus 1 month"
+    ExpiresByType image/png               "access plus 1 month"
+    ExpiresByType image/webp              "access plus 1 month"
+    ExpiresByType text/css                "access plus 1 week"
+    ExpiresByType application/javascript  "access plus 1 week"
 </IfModule>
 
-# ── Deny access to sensitive file types ───────────────────────────────────────
-<FilesMatch "\.(sql|log|sh|env|gitignore|md|lock)$">
+# ── Block sensitive file types ────────────────────────────────────────────────
+<FilesMatch "\.(sql|log|sh|env|gitignore|md|lock|swp)$">
     <IfModule mod_authz_core.c>
         Require all denied
     </IfModule>

@@ -3,11 +3,33 @@
  * JUAN CAFÉ - Sign Up Page
  * File: app/views/auth/signup.php
  *
- * UI only — no backend authentication yet.
- * Form validation and submit handled by auth.js
+ * Wired to PHP backend via AuthController::signupAction().
+ * Front-end field validation still handled by auth.js.
+ * Flash messages (errors from PHP) displayed at top of form.
  */
+
+require_once __DIR__ . '/../../config/config.php';
+require_once __DIR__ . '/../../helpers/functions.php';
+
+// Redirect already-logged-in users to their dashboard
+require_once __DIR__ . '/../../middleware/guest.php';
+
+startSession();
+
 require_once __DIR__ . '/../layouts/header.php';
 // No navbar on auth pages
+
+$flashError   = getFlash('error');
+$flashSuccess = getFlash('success');
+
+// Re-populate fields if PHP redirected back with an error
+$old = [
+    'name'  => htmlspecialchars($_SESSION['old_name']  ?? '', ENT_QUOTES, 'UTF-8'),
+    'email' => htmlspecialchars($_SESSION['old_email'] ?? '', ENT_QUOTES, 'UTF-8'),
+    'phone' => htmlspecialchars($_SESSION['old_phone'] ?? '', ENT_QUOTES, 'UTF-8'),
+];
+// Clear old input from session
+unset($_SESSION['old_name'], $_SESSION['old_email'], $_SESSION['old_phone']);
 ?>
 
 <!-- ================================================
@@ -95,9 +117,30 @@ require_once __DIR__ . '/../layouts/header.php';
         </p>
       </div>
 
-      <!-- Sign Up Form -->
-      <!-- auth.js handles validation and submit -->
-      <div id="signup-form">
+      <!-- PHP Flash Messages -->
+      <?php if ($flashError): ?>
+        <div style="
+          background: rgba(220,53,69,0.1);
+          border: 1px solid rgba(220,53,69,0.3);
+          border-radius: var(--border-radius-md);
+          padding: var(--space-3) var(--space-4);
+          margin-bottom: var(--space-5);
+          color: var(--color-danger);
+          font-size: var(--text-sm);
+        ">
+          ❌ <?= htmlspecialchars($flashError, ENT_QUOTES, 'UTF-8') ?>
+        </div>
+      <?php endif; ?>
+
+      <!-- Sign Up Form — wired to PHP AuthController -->
+      <form
+        id="signup-form"
+        method="POST"
+        action="/public/index.php?action=auth.signup"
+        novalidate
+      >
+        <!-- CSRF Token -->
+        <?= csrfField() ?>
 
         <!-- Full Name -->
         <div class="form-group" style="margin-bottom: var(--space-4);">
@@ -109,7 +152,10 @@ require_once __DIR__ . '/../layouts/header.php';
             <input
               type="text"
               id="signup-name"
+              name="name"
               placeholder="e.g. Juan dela Cruz"
+              value="<?= $old['name'] ?>"
+              autocomplete="name"
               style="width: 100%; padding: var(--space-3) var(--space-4) var(--space-3) 40px; border: 1.5px solid var(--border-light); border-radius: var(--border-radius-md); font-size: var(--text-sm); background: white; transition: var(--transition-fast);"
             />
           </div>
@@ -125,7 +171,10 @@ require_once __DIR__ . '/../layouts/header.php';
             <input
               type="email"
               id="signup-email"
+              name="email"
               placeholder="your@email.com"
+              value="<?= $old['email'] ?>"
+              autocomplete="email"
               style="width: 100%; padding: var(--space-3) var(--space-4) var(--space-3) 40px; border: 1.5px solid var(--border-light); border-radius: var(--border-radius-md); font-size: var(--text-sm); background: white; transition: var(--transition-fast);"
             />
           </div>
@@ -141,7 +190,9 @@ require_once __DIR__ . '/../layouts/header.php';
             <input
               type="password"
               id="signup-password"
+              name="password"
               placeholder="At least 6 characters"
+              autocomplete="new-password"
               style="width: 100%; padding: var(--space-3) 42px var(--space-3) 40px; border: 1.5px solid var(--border-light); border-radius: var(--border-radius-md); font-size: var(--text-sm); background: white; transition: var(--transition-fast);"
             />
             <button type="button" class="toggle-password" data-target="signup-password"
@@ -160,7 +211,9 @@ require_once __DIR__ . '/../layouts/header.php';
             <input
               type="password"
               id="signup-confirm"
+              name="confirm_password"
               placeholder="Re-enter your password"
+              autocomplete="new-password"
               style="width: 100%; padding: var(--space-3) 42px var(--space-3) 40px; border: 1.5px solid var(--border-light); border-radius: var(--border-radius-md); font-size: var(--text-sm); background: white; transition: var(--transition-fast);"
             />
             <button type="button" class="toggle-password" data-target="signup-confirm"
@@ -171,7 +224,8 @@ require_once __DIR__ . '/../layouts/header.php';
 
         <!-- Terms & Conditions -->
         <div style="margin-bottom: var(--space-6); display: flex; align-items: flex-start; gap: var(--space-3);">
-          <input type="checkbox" id="agree-terms" style="margin-top: 3px; accent-color: var(--color-coffee); flex-shrink: 0;" />
+          <input type="checkbox" id="agree-terms" name="agree_terms"
+                 style="margin-top: 3px; accent-color: var(--color-coffee); flex-shrink: 0;" />
           <label for="agree-terms" style="font-size: var(--text-xs); color: var(--text-muted); cursor: pointer; line-height: 1.6;">
             I agree to the <a href="/app/views/home/privacy-policy.php" style="color: var(--color-coffee);">Privacy Policy</a>
             and consent to Juan Café storing my information for service and marketing purposes.
@@ -180,9 +234,8 @@ require_once __DIR__ . '/../layouts/header.php';
 
         <!-- Submit Button -->
         <button
-          type="button"
+          type="submit"
           class="btn btn-primary btn-lg btn-block"
-          onclick="document.getElementById('signup-form').dispatchEvent(new Event('submit'))"
           style="margin-bottom: var(--space-5);"
         >
           <i class="fas fa-user-plus"></i> Create Account
@@ -194,7 +247,7 @@ require_once __DIR__ . '/../layouts/header.php';
           <a href="/app/views/auth/login.php" style="color: var(--color-coffee); font-weight: var(--font-weight-semibold);">Log in here</a>
         </p>
 
-      </div><!-- /signup-form -->
+      </form><!-- /signup-form -->
 
       <!-- Back to Home -->
       <div style="text-align: center; margin-top: var(--space-5);">
@@ -214,6 +267,24 @@ require_once __DIR__ . '/../layouts/header.php';
 <!-- JS files -->
 <script src="/public/assets/js/app.js"></script>
 <script src="/public/assets/js/auth.js"></script>
+
+<!-- Allow PHP form submit after auth.js validation passes -->
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  const form = document.getElementById('signup-form');
+  if (!form) return;
+
+  form.addEventListener('submit', function () {
+    // auth.js calls e.preventDefault() and validates fields.
+    // If no errors remain after that handler runs, allow native submit.
+    const hasErrors = form.querySelectorAll('.field-error').length > 0;
+    if (!hasErrors) {
+      form.removeEventListener('submit', arguments.callee);
+      form.submit();
+    }
+  }, false);
+});
+</script>
 
 <!-- Mobile responsive fix -->
 <style>

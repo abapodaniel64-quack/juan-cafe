@@ -3,11 +3,25 @@
  * JUAN CAFÉ - Login Page
  * File: app/views/auth/login.php
  *
- * UI only — no backend authentication yet.
- * Form validation and submit handled by auth.js
+ * Wired to PHP backend via AuthController::loginAction().
+ * Front-end field validation still handled by auth.js.
+ * Flash messages (errors from PHP) displayed at top of form.
  */
+
+require_once __DIR__ . '/../../config/config.php';
+require_once __DIR__ . '/../../helpers/functions.php';
+
+// Redirect already-logged-in users
+require_once __DIR__ . '/../../middleware/guest.php';
+
+// Start session for flash messages and CSRF token
+startSession();
+
 require_once __DIR__ . '/../layouts/header.php';
 // No navbar on auth pages — cleaner UX
+
+$flashError   = getFlash('error');
+$flashSuccess = getFlash('success');
 ?>
 
 <!-- ================================================
@@ -63,7 +77,7 @@ require_once __DIR__ . '/../layouts/header.php';
     <div style="width: 40px; height: 2px; background: var(--color-gold); margin: var(--space-8) auto;"></div>
 
     <p style="color: rgba(255,255,255,0.4); font-size: var(--text-xs);">
-      &copy; 2024 Juan Café · Top Juan Franchising Inc.
+      &copy; <?= date('Y') ?> Juan Café · Top Juan Franchising Inc.
     </p>
   </div>
 
@@ -87,9 +101,50 @@ require_once __DIR__ . '/../layouts/header.php';
         </p>
       </div>
 
-      <!-- Login Form -->
-      <!-- auth.js handles validation and submit -->
-      <div id="login-form">
+      <!-- PHP Flash Messages -->
+      <?php if ($flashError): ?>
+        <div style="
+          background: rgba(220,53,69,0.1);
+          border: 1px solid rgba(220,53,69,0.3);
+          border-radius: var(--border-radius-md);
+          padding: var(--space-3) var(--space-4);
+          margin-bottom: var(--space-5);
+          color: var(--color-danger);
+          font-size: var(--text-sm);
+          display: flex;
+          align-items: center;
+          gap: var(--space-2);
+        ">
+          ❌ <?= htmlspecialchars($flashError, ENT_QUOTES, 'UTF-8') ?>
+        </div>
+      <?php endif; ?>
+
+      <?php if ($flashSuccess): ?>
+        <div style="
+          background: rgba(76,175,80,0.1);
+          border: 1px solid rgba(76,175,80,0.3);
+          border-radius: var(--border-radius-md);
+          padding: var(--space-3) var(--space-4);
+          margin-bottom: var(--space-5);
+          color: var(--color-success, #2e7d32);
+          font-size: var(--text-sm);
+          display: flex;
+          align-items: center;
+          gap: var(--space-2);
+        ">
+          ✅ <?= htmlspecialchars($flashSuccess, ENT_QUOTES, 'UTF-8') ?>
+        </div>
+      <?php endif; ?>
+
+      <!-- Login Form — wired to PHP AuthController -->
+      <form
+        id="login-form"
+        method="POST"
+        action="/public/index.php?action=auth.login"
+        novalidate
+      >
+        <!-- CSRF Token -->
+        <?= csrfField() ?>
 
         <!-- Email -->
         <div class="form-group" style="margin-bottom: var(--space-5);">
@@ -101,7 +156,10 @@ require_once __DIR__ . '/../layouts/header.php';
             <input
               type="email"
               id="login-email"
+              name="email"
               placeholder="your@email.com"
+              value="<?= htmlspecialchars($_POST['email'] ?? '', ENT_QUOTES, 'UTF-8') ?>"
+              autocomplete="email"
               style="width: 100%; padding: var(--space-3) var(--space-4) var(--space-3) 40px; border: 1.5px solid var(--border-light); border-radius: var(--border-radius-md); font-size: var(--text-sm); background: white; transition: var(--transition-fast);"
             />
           </div>
@@ -117,7 +175,9 @@ require_once __DIR__ . '/../layouts/header.php';
             <input
               type="password"
               id="login-password"
+              name="password"
               placeholder="Enter your password"
+              autocomplete="current-password"
               style="width: 100%; padding: var(--space-3) 42px var(--space-3) 40px; border: 1.5px solid var(--border-light); border-radius: var(--border-radius-md); font-size: var(--text-sm); background: white; transition: var(--transition-fast);"
             />
             <!-- Show/Hide Password Toggle (handled by auth.js) -->
@@ -138,9 +198,8 @@ require_once __DIR__ . '/../layouts/header.php';
 
         <!-- Submit Button -->
         <button
-          type="button"
+          type="submit"
           class="btn btn-primary btn-lg btn-block"
-          onclick="document.getElementById('login-form').dispatchEvent(new Event('submit'))"
           style="margin-bottom: var(--space-5);"
         >
           <i class="fas fa-sign-in-alt"></i> Log In
@@ -158,7 +217,7 @@ require_once __DIR__ . '/../layouts/header.php';
           <a href="/app/views/auth/signup.php" style="color: var(--color-coffee); font-weight: var(--font-weight-semibold);">Sign up here</a>
         </p>
 
-      </div><!-- /login-form -->
+      </form><!-- /login-form -->
 
       <!-- Back to Home -->
       <div style="text-align: center; margin-top: var(--space-6);">
@@ -172,13 +231,42 @@ require_once __DIR__ . '/../layouts/header.php';
 
 </div><!-- /auth-page -->
 
-<!-- Toast container for notifications -->
+<!-- Toast container for auth.js notifications -->
 <div class="toast-container" id="toast-container"></div>
 
-<!-- Required JS files -->
-<!-- app.js must load before auth.js (showToast dependency) -->
+<!-- JS: app.js must load before auth.js (showToast dependency) -->
 <script src="/public/assets/js/app.js"></script>
 <script src="/public/assets/js/auth.js"></script>
+
+<!-- auth.js still runs client-side validation before PHP receives the form -->
+<script>
+// Override auth.js submit handler to allow real form submit after validation passes.
+// auth.js attaches to the 'submit' event on #login-form and calls e.preventDefault().
+// We re-enable native submit by listening AFTER auth.js with { capture: false }.
+// The simplest approach: let auth.js validate, then the form submits normally
+// because we changed the element from <div> to <form> — auth.js's e.preventDefault()
+// still fires, but we allow it through by removing the fake setTimeout redirect.
+//
+// NOTE: auth.js intercepts submit and calls e.preventDefault() + fake setTimeout redirect.
+// To keep PHP working without modifying auth.js, we override the final redirect:
+document.addEventListener('DOMContentLoaded', function () {
+  const form = document.getElementById('login-form');
+  if (!form) return;
+
+  // Re-attach a submit listener that runs AFTER auth.js (uses capture=false, runs last)
+  // to actually submit the real form if auth.js didn't find errors.
+  form.addEventListener('submit', function (e) {
+    // auth.js calls e.preventDefault() so the native submit is cancelled.
+    // We check if there are any field errors after auth.js ran.
+    const hasErrors = form.querySelectorAll('.field-error').length > 0;
+    if (!hasErrors) {
+      // No errors — allow native form submit to PHP
+      form.removeEventListener('submit', arguments.callee);
+      form.submit();
+    }
+  }, false);
+});
+</script>
 
 <!-- Responsive fix: stack panels on mobile -->
 <style>
