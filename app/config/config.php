@@ -10,7 +10,7 @@
 // ── Environment ──────────────────────────────────────────────────────────────
 define('APP_ENV',  'development');   // 'development' | 'production'
 define('APP_NAME', 'Juan Café');
-define('APP_URL',  'http://localhost');   // change in production
+define('APP_URL', 'http://juan-cafe.local');   // change in production
 if (!defined('APP_ROOT')) {
     define('APP_ROOT', 'C:/xampp/htdocs/juan-cafe');
 }
