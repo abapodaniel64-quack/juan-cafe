@@ -1,0 +1,121 @@
+/* ================================================
+   JUAN CAFÉ - CSS Variables
+   Core design tokens for the entire project
+   ================================================ */
+
+:root {
+  /* === PRIMARY COLORS === */
+  --color-espresso:    #2C1810;   /* Deep dark brown - primary text/headings */
+  --color-coffee:      #6F4E37;   /* Classic coffee brown - main brand color */
+  --color-latte:       #C19A6B;   /* Medium latte brown - accents */
+  --color-cappuccino:  #A0785A;   /* Mid-tone brown - hover states */
+  --color-cream:       #F5E6D3;   /* Warm cream - backgrounds */
+  --color-milk:        #FDF8F2;   /* Near-white cream - cards/surfaces */
+  --color-foam:        #FFFDF9;   /* Pure warm white */
+
+  /* === ACCENT COLORS === */
+  --color-gold:        #C8942A;   /* Warm gold - CTAs, highlights */
+  --color-gold-light:  #E8B84B;   /* Light gold - hover on CTAs */
+  --color-sienna:      #8B4513;   /* Deep sienna - borders, dividers */
+  --color-mocha:       #4A2F1A;   /* Very dark mocha - deep accents */
+
+  /* === UI STATE COLORS === */
+  --color-success:     #4CAF50;
+  --color-warning:     #FF9800;
+  --color-danger:      #E53935;
+  --color-info:        #2196F3;
+
+  /* === TEXT COLORS === */
+  --text-primary:      #2C1810;
+  --text-secondary:    #6F4E37;
+  --text-muted:        #A0785A;
+  --text-on-dark:      #FDF8F2;
+  --text-on-accent:    #FFFFFF;
+
+  /* === BACKGROUND COLORS === */
+  --bg-primary:        #FDF8F2;
+  --bg-secondary:      #F5E6D3;
+  --bg-dark:           #2C1810;
+  --bg-sidebar:        #1E1008;
+  --bg-admin:          #F9F5F0;
+  --bg-card:           #FFFFFF;
+  --bg-overlay:        rgba(44, 24, 16, 0.7);
+
+  /* === BORDER === */
+  --border-light:      #E8D5C0;
+  --border-medium:     #C8A882;
+  --border-dark:       #8B6347;
+  --border-radius-sm:  6px;
+  --border-radius-md:  12px;
+  --border-radius-lg:  20px;
+  --border-radius-xl:  30px;
+  --border-radius-full: 9999px;
+
+  /* === SHADOWS === */
+  --shadow-sm:   0 1px 4px rgba(44, 24, 16, 0.08);
+  --shadow-md:   0 4px 16px rgba(44, 24, 16, 0.12);
+  --shadow-lg:   0 8px 32px rgba(44, 24, 16, 0.18);
+  --shadow-xl:   0 16px 48px rgba(44, 24, 16, 0.22);
+  --shadow-card: 0 2px 12px rgba(111, 78, 55, 0.1);
+
+  /* === TYPOGRAPHY === */
+  --font-heading:  'Playfair Display', 'Georgia', serif;
+  --font-body:     'Lato', 'Helvetica Neue', sans-serif;
+  --font-accent:   'Dancing Script', cursive;
+  --font-ui:       'Lato', sans-serif;
+
+  --text-xs:   0.75rem;    /* 12px */
+  --text-sm:   0.875rem;   /* 14px */
+  --text-base: 1rem;       /* 16px */
+  --text-md:   1.125rem;   /* 18px */
+  --text-lg:   1.25rem;    /* 20px */
+  --text-xl:   1.5rem;     /* 24px */
+  --text-2xl:  1.875rem;   /* 30px */
+  --text-3xl:  2.25rem;    /* 36px */
+  --text-4xl:  3rem;       /* 48px */
+  --text-5xl:  3.75rem;    /* 60px */
+
+  --font-weight-regular: 400;
+  --font-weight-medium:  500;
+  --font-weight-semibold: 600;
+  --font-weight-bold:    700;
+
+  --line-height-tight:  1.25;
+  --line-height-normal: 1.6;
+  --line-height-loose:  1.8;
+
+  /* === SPACING === */
+  --space-1:  0.25rem;   /* 4px */
+  --space-2:  0.5rem;    /* 8px */
+  --space-3:  0.75rem;   /* 12px */
+  --space-4:  1rem;      /* 16px */
+  --space-5:  1.25rem;   /* 20px */
+  --space-6:  1.5rem;    /* 24px */
+  --space-8:  2rem;      /* 32px */
+  --space-10: 2.5rem;    /* 40px */
+  --space-12: 3rem;      /* 48px */
+  --space-16: 4rem;      /* 64px */
+  --space-20: 5rem;      /* 80px */
+  --space-24: 6rem;      /* 96px */
+
+  /* === LAYOUT === */
+  --sidebar-width:       260px;
+  --sidebar-collapsed:   70px;
+  --navbar-height:       70px;
+  --admin-sidebar-width: 250px;
+  --max-width:           1200px;
+  --content-padding:     var(--space-8);
+
+  /* === TRANSITIONS === */
+  --transition-fast:   all 0.15s ease;
+  --transition-normal: all 0.25s ease;
+  --transition-slow:   all 0.4s ease;
+
+  /* === Z-INDEX === */
+  --z-base:    1;
+  --z-dropdown: 100;
+  --z-sticky:  200;
+  --z-sidebar: 300;
+  --z-modal:   400;
+  --z-toast:   500;
+}
