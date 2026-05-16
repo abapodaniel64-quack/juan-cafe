@@ -79,4 +79,4 @@ if ($action && isset($routes[$action])) {
 }
 
 // ── Fallback: redirect to homepage ──────────────────────────────────────────────
-redirect('/app/views/home/index.php');
+redirect('/juan-cafe/app/views/home/index.php');
