@@ -12,7 +12,7 @@ Options -MultiViews
 # ── Rewrite Engine ────────────────────────────────────────────────────────────
 <IfModule mod_rewrite.c>
     RewriteEngine On
-    RewriteBase /
+    RewriteBase /juan-cafe/public/
 
     # ── Force HTTPS (uncomment in production only) ─────────────────────────────
     # RewriteCond %{HTTPS} off
