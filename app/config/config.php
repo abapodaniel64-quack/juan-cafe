@@ -11,7 +11,9 @@
 define('APP_ENV',  'development');   // 'development' | 'production'
 define('APP_NAME', 'Juan Café');
 define('APP_URL',  'http://localhost');   // change in production
-define('APP_ROOT', dirname(__DIR__, 2)); // project root (juan-cafe/)
+if (!defined('APP_ROOT')) {
+    define('APP_ROOT', dirname(__DIR__, 2));
+}
 
 // ── Session ───────────────────────────────────────────────────────────────────
 define('SESSION_NAME',     'juancafe_session');

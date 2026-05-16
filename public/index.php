@@ -21,7 +21,9 @@
  */
 
 // ── Bootstrap ─────────────────────────────────────────────────────────────────
-define('APP_ROOT', dirname(__DIR__));
+if (!defined('APP_ROOT')) {
+    define('APP_ROOT', dirname(__DIR__, 2));
+}
 
 require_once APP_ROOT . '/app/config/config.php';
 require_once APP_ROOT . '/app/helpers/functions.php';
