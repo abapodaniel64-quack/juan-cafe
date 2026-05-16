@@ -86,9 +86,9 @@
 <div class="toast-container" id="toast-container"></div>
 
 <!-- JavaScript Files -->
-<script src="/public/assets/js/app.js"></script>
-<script src="/public/assets/js/cart.js"></script>
-<script src="/public/assets/js/notifications.js"></script>
+<script src="/assets/js/app.js"></script>
+<script src="/assets/js/cart.js"></script>
+<script src="/assets/js/notifications.js"></script>
 
 </body>
 </html>
